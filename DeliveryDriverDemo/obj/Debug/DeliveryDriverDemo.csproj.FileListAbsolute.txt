@@ -1,6 +1,0 @@
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\bin\Debug\DeliveryDriverDemo.exe
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\bin\Debug\DeliveryDriverDemo.pdb
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\obj\Debug\DeliveryDriverDemo.csproj.AssemblyReference.cache
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\obj\Debug\DeliveryDriverDemo.csproj.CoreCompileInputs.cache
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\obj\Debug\DeliveryDriverDemo.exe
-C:\PhungNgocMinh\Học phần\HK3_2026-2027\LapTrinhTrenWindows\Midterm_reference\DeliveryDriverDemo\DeliveryDriverDemo\DeliveryDriverDemo\obj\Debug\DeliveryDriverDemo.pdb
