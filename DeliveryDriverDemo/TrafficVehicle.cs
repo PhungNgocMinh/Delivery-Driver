@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -18,6 +19,7 @@ namespace DeliveryDriverDemo
         public int DelayRemainingMs { get; private set; }
         public Point Cell { get; private set; }
         public Point PreviousCell { get; private set; }
+        public Point Heading { get; private set; }
         public bool MovedThisTick { get; private set; }
 
         public TrafficVehicle(string name, IEnumerable<Point> route, bool isLoop,
@@ -40,6 +42,9 @@ namespace DeliveryDriverDemo
             DelayRemainingMs = InitialDelayMs;
             Cell = Route.Count == 0 ? Point.Empty : Route[0];
             PreviousCell = Cell;
+            Heading = Route.Count > 1
+                ? new Point(Math.Sign(Route[1].X - Route[0].X), Math.Sign(Route[1].Y - Route[0].Y))
+                : new Point(1, 0);
             MovedThisTick = false;
         }
 
@@ -88,7 +93,9 @@ namespace DeliveryDriverDemo
                 }
                 Index = next;
             }
+            Point old = Cell;
             Cell = Route[Index];
+            Heading = new Point(Math.Sign(Cell.X - old.X), Math.Sign(Cell.Y - old.Y));
         }
     }
 }

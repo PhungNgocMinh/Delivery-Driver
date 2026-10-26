@@ -46,6 +46,10 @@
     <Compile Include="GameEngine.cs" />
     <Compile Include="GamePanel.cs" />
     <Compile Include="GameForm.cs" />
+    <Compile Include="MainMenuForm.cs" />
+    <Compile Include="LevelSelectionForm.cs" />
+    <Compile Include="HelpForm.cs" />
+    <Compile Include="AboutForm.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

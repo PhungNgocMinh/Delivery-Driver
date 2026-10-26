@@ -105,9 +105,9 @@ namespace DeliveryDriverDemo
             DrawPath(g);
 
             foreach (TrafficVehicle vehicle in _engine.Vehicles)
-                DrawVehicle(g, vehicle.Cell, vehicle.PreviousCell, vehicle.BodyColor, false);
+                DrawVehicle(g, vehicle.Cell, vehicle.Heading, vehicle.BodyColor, false);
 
-            DrawVehicle(g, _engine.DriverCell, _engine.DriverPreviousCell,
+            DrawVehicle(g, _engine.DriverCell, _engine.DriverHeading,
                 Color.FromArgb(49, 151, 232), true);
 
             using (Font font = new Font("Segoe UI", Math.Max(8f, _cellSize * 0.14f), FontStyle.Bold))
@@ -257,14 +257,14 @@ namespace DeliveryDriverDemo
             }
         }
 
-        private void DrawVehicle(Graphics g, Point cell, Point previousCell, Color color, bool isDriver)
+        private void DrawVehicle(Graphics g, Point cell, Point heading, Color color, bool isDriver)
         {
             Point center = CellCenter(cell);
             float angle = 0f;
-            if (cell.X < previousCell.X) angle = 180f;
-            else if (cell.Y > previousCell.Y) angle = 90f;
-            else if (cell.Y < previousCell.Y) angle = 270f;
-            else if (cell.X > previousCell.X) angle = 0f;
+            if (heading.X < 0) angle = 180f;
+            else if (heading.Y > 0) angle = 90f;
+            else if (heading.Y < 0) angle = 270f;
+            else angle = 0f;
 
             GraphicsState state = g.Save();
             g.TranslateTransform(center.X, center.Y);

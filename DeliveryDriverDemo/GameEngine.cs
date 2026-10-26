@@ -29,6 +29,7 @@ namespace DeliveryDriverDemo
         public GameState State { get; private set; }
         public Point DriverCell { get; private set; }
         public Point DriverPreviousCell { get; private set; }
+        public Point DriverHeading { get; private set; }
         public string ResultMessage { get; private set; }
 
         public int InkLimit { get { return GameMap.InkLimit; } }
@@ -169,6 +170,7 @@ namespace DeliveryDriverDemo
         {
             DriverCell = Map.Start;
             DriverPreviousCell = DriverCell;
+            DriverHeading = new Point(1, 0);
             _driverMovedThisTick = false;
         }
 
@@ -191,6 +193,9 @@ namespace DeliveryDriverDemo
                 DriverPreviousCell = DriverCell;
                 _driverPathIndex++;
                 DriverCell = Path[_driverPathIndex];
+                DriverHeading = new Point(
+                    Math.Sign(DriverCell.X - DriverPreviousCell.X),
+                    Math.Sign(DriverCell.Y - DriverPreviousCell.Y));
                 _driverMovedThisTick = true;
             }
 
