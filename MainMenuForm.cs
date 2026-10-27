@@ -25,6 +25,8 @@ namespace DeliveryDriverDemo
             Font = new Font("Segoe UI", 10f, FontStyle.Regular);
 
             BuildLayout();
+            AudioManager.AttachClickSounds(this);
+            AudioManager.StartMusic();
         }
 
         private void BuildLayout()
@@ -62,6 +64,15 @@ namespace DeliveryDriverDemo
             };
             hero.Controls.Add(subtitle);
             hero.Controls.Add(title);
+
+            // Mute button and volume bar
+            AudioControlPanel audio = new AudioControlPanel(true);
+            hero.Controls.Add(audio);
+            audio.BringToFront();
+            hero.SizeChanged += delegate
+            {
+                audio.Location = new Point(hero.ClientSize.Width - audio.Width - 10, 8);
+            };
             root.Controls.Add(hero, 0, 0);
 
             FlowLayoutPanel menu = new FlowLayoutPanel

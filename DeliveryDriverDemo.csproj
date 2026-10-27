@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutForm.cs" />
+    <Compile Include="AppData.cs" />
+    <Compile Include="AudioControlPanel.cs" />
+    <Compile Include="AudioManager.cs" />
+    <Compile Include="SoundSynth.cs" />
     <Compile Include="HelpForm.cs" />
     <Compile Include="LevelLoader.cs" />
     <Compile Include="LevelSelectionForm.cs" />

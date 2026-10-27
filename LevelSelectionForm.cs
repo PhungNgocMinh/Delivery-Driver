@@ -27,6 +27,8 @@ namespace DeliveryDriverDemo
             "A busier route-planning challenge with tighter traffic timing."
         };
 
+        private bool _ready;
+
         public int SelectedLevelIndex { get; private set; }
         public string SelectedLevelName { get; private set; }
 
@@ -44,6 +46,8 @@ namespace DeliveryDriverDemo
             Font = new Font("Segoe UI", 10f, FontStyle.Regular);
 
             BuildLayout();
+            AudioManager.AttachClickSounds(this);
+            _ready = true;
         }
 
         private void BuildLayout()
@@ -94,6 +98,7 @@ namespace DeliveryDriverDemo
             for (int i = 0; i < _levelNames.Length; i++)
                 _levelsList.Items.Add(_levelNames[i]);
             _levelsList.SelectedIndexChanged += LevelSelectionChanged;
+            _levelsList.DoubleClick += StartClicked;
             _levelsList.SelectedIndex = 0;
 
             Panel details = new Panel
@@ -142,7 +147,7 @@ namespace DeliveryDriverDemo
             Label note = new Label
             {
                 Dock = DockStyle.Fill,
-                Text = "Levels load from the Levels folder. Scores add up across consecutive levels.",
+                Text = "Ranking: lowest total path used is #1; equal path is decided by the shorter planning time.",
                 ForeColor = Color.FromArgb(100, 109, 117),
                 Font = new Font("Segoe UI", 8f, FontStyle.Italic),
                 TextAlign = ContentAlignment.MiddleLeft
@@ -174,6 +179,7 @@ namespace DeliveryDriverDemo
 
         private void LevelSelectionChanged(object sender, EventArgs e)
         {
+            if (_ready) AudioManager.PlayClick();
             if (_descriptionLabel != null && _levelsList.SelectedIndex >= 0)
                 _descriptionLabel.Text = _descriptions[_levelsList.SelectedIndex];
         }

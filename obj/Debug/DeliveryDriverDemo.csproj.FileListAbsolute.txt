@@ -1,0 +1,6 @@
+D:\VSC\DeliveryDriverDemo_Real\bin\Debug\DeliveryDriverDemo.exe
+D:\VSC\DeliveryDriverDemo_Real\bin\Debug\DeliveryDriverDemo.pdb
+D:\VSC\DeliveryDriverDemo_Real\obj\Debug\DeliveryDriverDemo.csproj.AssemblyReference.cache
+D:\VSC\DeliveryDriverDemo_Real\obj\Debug\DeliveryDriverDemo.csproj.CoreCompileInputs.cache
+D:\VSC\DeliveryDriverDemo_Real\obj\Debug\DeliveryDriverDemo.exe
+D:\VSC\DeliveryDriverDemo_Real\obj\Debug\DeliveryDriverDemo.pdb

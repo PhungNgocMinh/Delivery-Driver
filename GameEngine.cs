@@ -32,7 +32,7 @@ namespace DeliveryDriverDemo
         private GameState _lastActivePhase;
 
         private bool _levelScoreAwarded;
-        private int _scoreAtLevelStart;
+        private int _pathUsedAtLevelStart;
         private string _currentLevelFilePath;
         private bool _drawing;
         private bool _driverMovedThisTick;
@@ -45,10 +45,26 @@ namespace DeliveryDriverDemo
         public Point DriverPreviousCell { get; private set; }
         public Point DriverHeading { get; private set; }   // D: direction the driver sprite faces
         public string ResultMessage { get; private set; }
-        public int TotalScore { get; private set; }
-        public int LastLevelScore { get; private set; }
+        public int TotalPathUsed { get; private set; }
+        public int LastLevelPathUsed { get; private set; }
         public int PlanningTimeLimitSeconds { get; private set; }
         public int CurrentLevelNumber { get; private set; }
+
+        /// <summary>True when the last loss was a collision (not a timeout); used for the crash sound.</summary>
+        public bool LossWasCrash { get; private set; }
+
+        /// <summary>Plan time of the level that was just won (the tie-breaker on the leaderboard).</summary>
+        public int LastLevelPlanSeconds { get; private set; }
+
+        /// <summary>Seconds spent planning so far in this level (the planning clock stops at GO).</summary>
+        public int PlanningUsedSeconds
+        {
+            get
+            {
+                int usedMs = Math.Max(0, PlanningTimeLimitSeconds * 1000 - _planningRemainingMs);
+                return (int)Math.Round(usedMs / 1000.0);
+            }
+        }
         public int PlanningRemainingSeconds
         {
             get
@@ -118,16 +134,16 @@ namespace DeliveryDriverDemo
 
         public GameEngine(int levelNumber)
         {
-            TotalScore = 0;
-            LastLevelScore = 0;
+            TotalPathUsed = 0;
+            LastLevelPathUsed = 0;
 
             LoadLevel(levelNumber);
         }
 
         public GameEngine(string levelFilePath)
         {
-            TotalScore = 0;
-            LastLevelScore = 0;
+            TotalPathUsed = 0;
+            LastLevelPathUsed = 0;
 
             LoadLevelFromFile(levelFilePath);
         }
@@ -145,7 +161,7 @@ namespace DeliveryDriverDemo
             InitializeLoadedMap(
                 LevelLoader.LoadFromFile(_currentLevelFilePath));
 
-            _scoreAtLevelStart = TotalScore;
+            _pathUsedAtLevelStart = TotalPathUsed;
         }
 
         public void LoadLevelFromFile(string filePath)
@@ -167,7 +183,7 @@ namespace DeliveryDriverDemo
             InitializeLoadedMap(
                 LevelLoader.LoadFromFile(_currentLevelFilePath));
 
-            _scoreAtLevelStart = TotalScore;
+            _pathUsedAtLevelStart = TotalPathUsed;
         }
 
         private void InitializeLoadedMap(GameMap loadedMap)
@@ -200,7 +216,9 @@ namespace DeliveryDriverDemo
             _driverMovedThisTick = false;
             _levelScoreAwarded = false;
 
-            LastLevelScore = 0;
+            LastLevelPathUsed = 0;
+            LastLevelPlanSeconds = 0;
+            LossWasCrash = false;
             ResultMessage = String.Empty;
 
             ResetDriver();
@@ -292,6 +310,7 @@ namespace DeliveryDriverDemo
                 vehicle.Reset();
 
             ResultMessage = String.Empty;
+            LossWasCrash = false;
         }
         //them pause va resume vao game
         public void Pause()
@@ -316,8 +335,8 @@ namespace DeliveryDriverDemo
         public void Retry()
         {
           
-            TotalScore = _scoreAtLevelStart;
-            LastLevelScore = 0;
+            TotalPathUsed = _pathUsedAtLevelStart;
+            LastLevelPathUsed = 0;
             _levelScoreAwarded = false;
 
             GameMap loadedMap =
@@ -325,7 +344,7 @@ namespace DeliveryDriverDemo
 
             InitializeLoadedMap(loadedMap);
 
-            _scoreAtLevelStart = TotalScore;
+            _pathUsedAtLevelStart = TotalPathUsed;
         }
 
         private void ResetDriver()
@@ -407,8 +426,7 @@ namespace DeliveryDriverDemo
                 State = GameState.Won;
 
                 ResultMessage =
-                    "DELIVERY COMPLETE! You reached the customer. " +
-                    "Score earned: " + LastLevelScore;
+                    "DELIVERY COMPLETE! You reached the customer.";
 
                 return;
             }
@@ -431,17 +449,11 @@ namespace DeliveryDriverDemo
             return 1000;
         }
         
-        private int CalculateLevelScore()   //logic tinh diem chung cua cac man choi
+        // Ranking value of a finished level: how many road tiles the planned route used.
+        // Lower is better. Ties are broken by the planning time (LastLevelPlanSeconds).
+        private int CalculateLevelScore()
         {
-            int planningSeconds =
-                Math.Max(0, _planningRemainingMs / 1000);
-
-            int deliverySeconds =
-                Math.Max(0, _deliveryRemainingMs / 1000);
-
-            return 100
-                + planningSeconds * 5
-                + deliverySeconds * 10;
+            return Path.Count;
         }
 
         private void AwardLevelScore()
@@ -449,8 +461,9 @@ namespace DeliveryDriverDemo
             if (_levelScoreAwarded)
                 return;
 
-            LastLevelScore = CalculateLevelScore();
-            TotalScore += LastLevelScore;
+            LastLevelPathUsed = CalculateLevelScore();
+            LastLevelPlanSeconds = PlanningUsedSeconds;
+            TotalPathUsed += LastLevelPathUsed;
 
             _levelScoreAwarded = true;
         }
@@ -462,6 +475,7 @@ namespace DeliveryDriverDemo
                 if (DriverCell == vehicle.Cell)
                 {
                     State = GameState.Lost;
+                    LossWasCrash = true;
                     ResultMessage = "CRASH! Your delivery vehicle collided with " + vehicle.Name + ".";
                     return true;
                 }
@@ -471,6 +485,7 @@ namespace DeliveryDriverDemo
                     DriverCell == vehicle.PreviousCell && DriverPreviousCell == vehicle.Cell)
                 {
                     State = GameState.Lost;
+                    LossWasCrash = true;
                     ResultMessage = "CRASH! You crossed paths with " + vehicle.Name + ".";
                     return true;
                 }

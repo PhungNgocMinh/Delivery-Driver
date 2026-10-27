@@ -10,7 +10,17 @@ namespace DeliveryDriverDemo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainMenuForm());   // not new GameForm()
+
+            AudioManager.Initialize();
+            AudioManager.StartMusic();
+            try
+            {
+                Application.Run(new MainMenuForm());   // not new GameForm()
+            }
+            finally
+            {
+                AudioManager.Shutdown();
+            }
         }
     }
 }

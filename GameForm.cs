@@ -57,6 +57,8 @@ namespace DeliveryDriverDemo
             BuildInterface();
             WireEvents();
             RefreshInterface();
+            AudioManager.AttachClickSounds(this);
+            AudioManager.StartMusic();
 
             _clock.Start();
             _lastTickMs = _clock.ElapsedMilliseconds;
@@ -128,7 +130,7 @@ namespace DeliveryDriverDemo
             _timeLabel.Margin = new Padding(0, 20, 30, 0);
             _pathLabel = CreateHudLabel("PATH  0 / 32", 10.5f, true);
             _pathLabel.Margin = new Padding(0, 20, 30, 0);
-            _scoreLabel = CreateHudLabel("SCORE  0", 10.5f, true);
+            _scoreLabel = CreateHudLabel("TOTAL PATH  -", 10.5f, true);
             _scoreLabel.Margin = new Padding(0, 20, 30, 0);
 
             items.Controls.Add(title);
@@ -136,7 +138,15 @@ namespace DeliveryDriverDemo
             items.Controls.Add(_timeLabel);
             items.Controls.Add(_pathLabel);
             items.Controls.Add(_scoreLabel);
-            hud.Controls.Add(items);
+            // Mute button and volume bar in the upper-right corner (M also toggles mute).
+            AudioControlPanel audio = new AudioControlPanel(true)
+            {
+                Dock = DockStyle.Right,
+                Width = 290
+            };
+
+            hud.Controls.Add(items);    // Fill first, then the right-docked audio panel
+            hud.Controls.Add(audio);
             return hud;
         }
 
@@ -214,7 +224,7 @@ namespace DeliveryDriverDemo
 
             Label legend = new Label
             {
-                Text = "TILE GUIDE\nS  Depot / start\nF  Customer / finish\nBrown  Mud (slow)\nBlue-grey  Highway (fast)\nRed / purple  Traffic",
+                Text = "TILE GUIDE\nS  Depot / start\nF  Customer / finish\nBrown  Mud (slow)\nBlue-grey  Highway (fast)\nRed / purple  Traffic\n\nKeys: P = pause, M = mute",
                 AutoSize = true,
                 MaximumSize = new Size(215, 0),
                 Font = new Font("Segoe UI", 8.8f, FontStyle.Regular),
@@ -291,6 +301,8 @@ namespace DeliveryDriverDemo
 
                 prompt.AcceptButton = saveButton;
                 prompt.CancelButton = cancelButton;
+
+                AudioManager.AttachClickSounds(prompt);
 
                 if (prompt.ShowDialog(this) != DialogResult.OK)
                     return "Player";
@@ -418,6 +430,7 @@ namespace DeliveryDriverDemo
 
             _timer.Stop();
             _clock.Stop();
+            AudioManager.SetEngineRunning(false);
         }
 
         private void PauseGame()
@@ -452,6 +465,13 @@ namespace DeliveryDriverDemo
                 else PauseGame();
                 return true;
             }
+
+            // M toggles mute while playing.
+            if (keyData == Keys.M)
+            {
+                AudioManager.Muted = !AudioManager.Muted;
+                return true;
+            }
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -480,8 +500,8 @@ namespace DeliveryDriverDemo
 
             _sessionRecord.SetLevelResult(
                 _engine.CurrentLevelNumber,
-                _engine.LastLevelScore,
-                _engine.ElapsedTimeSeconds);
+                _engine.LastLevelPathUsed,
+                _engine.LastLevelPlanSeconds);
 
             TrySaveSession();
         }
@@ -530,6 +550,9 @@ namespace DeliveryDriverDemo
             if (previousState != newState)
                 _gamePanel.CancelDrawing();
 
+            // The engine sound plays only while the van is driving (not planning, paused or finished).
+            AudioManager.SetEngineRunning(newState == GameState.Running);
+
             _gamePanel.Invalidate();
             RefreshInterface();
 
@@ -545,6 +568,10 @@ namespace DeliveryDriverDemo
             _timer.Stop();
             try
             {
+                if (result == GameState.Won) AudioManager.PlayWin();
+                else if (_engine.LossWasCrash) AudioManager.PlayCrash();
+                else AudioManager.PlayLose();
+
                 Refresh();   // show the result panel behind the dialogs
 
                 if (result == GameState.Won)
@@ -571,7 +598,9 @@ namespace DeliveryDriverDemo
             _stateLabel.Text = "STATE  " + _engine.State.ToString().ToUpperInvariant();
             string phase = _engine.ActivePhase == GameState.Planning ? "PLAN" : "DELIVERY";
             _timeLabel.Text = phase + " TIME  " + _engine.RemainingSeconds + " s";
-            _scoreLabel.Text = "SCORE  " + _engine.TotalScore;
+            _scoreLabel.Text = _sessionRecord.CompletedLevels > 0
+                ? "TOTAL PATH  " + _sessionRecord.TotalPathUsed + " / " + _sessionRecord.TotalPathLimit
+                : "TOTAL PATH  -";
             Text = "Delivery Driver — Level " + _engine.CurrentLevelNumber + ": " + _engine.Map.LevelName;
             _pathLabel.Text = "PATH  " + _engine.PathLength + " / " + _engine.InkLimit;
 
@@ -597,8 +626,9 @@ namespace DeliveryDriverDemo
                 _resultLabel.Text =
                     "VICTORY!\n\n" +
                     _engine.ResultMessage +
-                    "\n\nDiem man nay: " + _engine.LastLevelScore +
-                    "\nTong diem: " + _engine.TotalScore;
+                    "\n\nPath used: " + _engine.LastLevelPathUsed + " / " + _engine.InkLimit +
+                    "\nPlan time: " + _engine.LastLevelPlanSeconds + " s" +
+                    "\nTotal path: " + _sessionRecord.TotalPathUsed + " / " + _sessionRecord.TotalPathLimit;
             }
             else if (hasLost)
             {

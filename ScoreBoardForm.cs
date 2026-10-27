@@ -70,13 +70,18 @@ namespace DeliveryDriverDemo
             grid.ColumnHeadersDefaultCellStyle.Font =
                 new Font("Segoe UI", 9.5f, FontStyle.Bold);
 
+            grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            grid.ColumnHeadersHeightSizeMode =
+                DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            grid.ColumnHeadersHeight = 54;
+
             grid.Columns.Add("Rank", "Hạng");
             grid.Columns.Add("Name", "Người chơi");
-            grid.Columns.Add("L1", "Màn 1: Điểm / Thời gian");
-            grid.Columns.Add("L2", "Màn 2: Điểm / Thời gian");
-            grid.Columns.Add("L3", "Màn 3: Điểm / Thời gian");
-            grid.Columns.Add("TotalScore", "Tổng điểm");
-            grid.Columns.Add("TotalTime", "Tổng thời gian");
+            grid.Columns.Add("L1", "Màn 1\nĐường đi / Thời gian lập kế hoạch");
+            grid.Columns.Add("L2", "Màn 2\nĐường đi / Thời gian lập kế hoạch");
+            grid.Columns.Add("L3", "Màn 3\nĐường đi / Thời gian lập kế hoạch");
+            grid.Columns.Add("TotalPath", "Tổng đường đã dùng");
+            grid.Columns.Add("TotalTime", "Tổng thời gian lập kế hoạch");
 
             for (int i = 0; i < records.Count; i++)
             {
@@ -85,11 +90,11 @@ namespace DeliveryDriverDemo
                 grid.Rows.Add(
                     i + 1,
                     r.Name,
-                    FormatLevel(r.Level1Score, r.Level1TimeSeconds),
-                    FormatLevel(r.Level2Score, r.Level2TimeSeconds),
-                    FormatLevel(r.Level3Score, r.Level3TimeSeconds),
-                    r.TotalScore,
-                    FormatTime(r.TotalTimeSeconds));
+                    FormatLevel(r.Level1PathUsed, 1, r.Level1PlanSeconds),
+                    FormatLevel(r.Level2PathUsed, 2, r.Level2PlanSeconds),
+                    FormatLevel(r.Level3PathUsed, 3, r.Level3PlanSeconds),
+                    r.TotalPathUsed + " / " + r.TotalPathLimit,
+                    FormatTime(r.TotalPlanSeconds));
             }
 
             if (records.Count == 0)
@@ -129,7 +134,21 @@ namespace DeliveryDriverDemo
             };
 
             closeButton.Click += delegate { Close(); };
+
+            // LUAT XEP HANG 
+            Label rule = new Label
+            {
+                Text = "Xếp hạng: tổng đường đi ít nhất đứng #1. " +
+                       "Nếu bằng nhau, thời gian lập kế hoạch ngắn hơn xếp trên.",
+                Dock = DockStyle.Left,
+                Width = 760,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = Color.FromArgb(92, 104, 114),
+                Font = new Font("Segoe UI", 9f, FontStyle.Italic)
+            };
+            footer.Controls.Add(rule);
             footer.Controls.Add(closeButton);
+            AudioManager.AttachClickSounds(this);
 
             layout.Controls.Add(title, 0, 0);
             layout.Controls.Add(grid, 0, 1);
@@ -138,12 +157,13 @@ namespace DeliveryDriverDemo
             Controls.Add(layout);
         }
 
-        private static string FormatLevel(int score, int seconds)
+        private static string FormatLevel(int pathUsed, int levelNumber, int planSeconds)
         {
-            if (score <= 0)
+            if (pathUsed <= 0)
                 return "-";
 
-            return score + " / " + FormatTime(seconds);
+            return pathUsed + " / " + ScoreBoard.InkLimitFor(levelNumber)
+                + "  |  " + FormatTime(planSeconds);
         }
 
         private static string FormatTime(int seconds)

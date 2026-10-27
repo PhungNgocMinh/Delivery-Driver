@@ -14,6 +14,7 @@ namespace DeliveryDriverDemo
             BackColor = Color.FromArgb(239, 243, 246);
             Font = new Font("Segoe UI", 10f, FontStyle.Regular);
             BuildLayout();
+            AudioManager.AttachClickSounds(this);
         }
 
         private void BuildLayout()
