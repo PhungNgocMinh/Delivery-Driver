@@ -72,7 +72,7 @@ namespace DeliveryDriverDemo
 
             GroupBox teamBox = new GroupBox
             {
-                Text = "TEAM MEMBERS — REPLACE THE PLACEHOLDERS",
+                Text = "TEAM MEMBERS",
                 Dock = DockStyle.Fill,
                 ForeColor = Color.FromArgb(28, 39, 50),
                 Padding = new Padding(12)
@@ -82,10 +82,10 @@ namespace DeliveryDriverDemo
                 Dock = DockStyle.Fill,
                 ForeColor = Color.FromArgb(60, 73, 83),
                 Text =
-                    "Member A — [Trịnh Minh Huy] | Student ID: [50.01.103.027] | Class: [50.01.SPTin.A]\n" +
-                    "Member B — [Đặng Tấn Phát] | Student ID: [51.01.104.068] | Class: [51.01.CNTT.A]\n" +
-                    "Member C — [Nguyễn Viết Minh] | Student ID: [51.01.104.145] | Class: [51.01.CNTT.B]\n" +
-                    "Member D — [Phùng Ngọc Minh] | Student ID: [51.01.104.058] | Class: [51.01.CNTT.A]",
+                    "Member A — Trịnh Minh Huy | Student ID: 50.01.103.027 | Class: 50.01.SPTin.A\n" +
+                    "Member B — Đặng Tấn Phát | Student ID: 51.01.104.068 | Class: 51.01.CNTT.A\n" +
+                    "Member C — Nguyễn Viết Minh | Student ID: 51.01.104.145 | Class: 51.01.CNTT.B\n" +
+                    "Member D — Phùng Ngọc Minh | Student ID: 51.01.104.058 | Class: 51.01.CNTT.A",
                 TextAlign = ContentAlignment.MiddleLeft
             };
             teamBox.Controls.Add(team);
